@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(sdl3-imgui-template)
+project(sdl3-imgui-template LANGUAGES CXX)
+set(CMAKE_CXX_COMPILER clang++)
+set(CMAKE_C_COMPILER clang)
 
 # CPM
 file(
