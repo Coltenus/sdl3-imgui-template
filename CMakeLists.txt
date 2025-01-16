@@ -116,6 +116,9 @@ add_executable(app) # WIN32 - hide the console like this add_executable(app WIN3
 target_sources(app
 PRIVATE
     src/main.cpp
+    src/button.cpp
+    src/common.cpp
+    src/titlebar.cpp
 )
 
 target_include_directories(app PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/SDL3/${arch}/include)

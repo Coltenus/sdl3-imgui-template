@@ -12,18 +12,25 @@
 #include <SDL3_image/SDL_image.h>
 #include <SDL3/SDL_tray.h>
 #include <SDL3_ttf/SDL_ttf.h>
+#include "titlebar.h"
+#include "common.h"
 
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
+static const int titlebar_height = 32;
+static const SDL_Point window_size = {800, titlebar_height + 600};
 static ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-static SDL_Texture *texture = NULL;
-static SDL_FRect dstrect = {0, 0, 100, 100};
 static SDL_Tray *tray = NULL;
 static SDL_TrayMenu *menu = NULL;
 static bool hidden = false;
 static TTF_Font* font = NULL;
 static SDL_Texture* text_texture = NULL;
-static SDL_FRect text_rect = {400, 50, 100, 30};
+static const char* text = "Text example!";
+static const int text_size = 32;
+static SDL_FRect text_rect = {400, titlebar_height + 50, (float)strlen(text) * text_size / 3, text_size};
+static Titlebar* titlebar = NULL;
+static const SDL_Color titlebar_color = {60, 60, 120, 255};
+static bool show_subwindows = true;
 
 void SDLCALL quit_callback(void *userdata, SDL_TrayEntry *entry) {
     SDL_Event event;
@@ -59,7 +66,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         return SDL_APP_FAILURE;
     }
 
-    if (!SDL_CreateWindowAndRenderer("examples/CATEGORY/NAME", 640, 480, 0, &window, &renderer)) {
+    if (!SDL_CreateWindowAndRenderer("examples/CATEGORY/NAME", window_size.x, window_size.y,
+    SDL_WINDOW_BORDERLESS, &window, &renderer)) {
         SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
         return SDL_APP_FAILURE;
     }
@@ -90,20 +98,13 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
         return SDL_APP_FAILURE;
     }
 
-    SDL_Surface* text_surf = TTF_RenderText_Blended(font, "Hello, world!", strlen("Hello, world!"), (SDL_Color){0, 0, 0, 255});
-    if(!text_surf) {
-        SDL_Log("Couldn't render text: %s", SDL_GetError());
-        return SDL_APP_FAILURE;
-    }
-    text_texture = SDL_CreateTextureFromSurface(renderer, text_surf);
-    SDL_DestroySurface(text_surf);
+    text_texture = CreateTextTexture(renderer, font, text, {0, 0, 0, 255});
 
     auto img_surf = IMG_Load("assets/close.png");
     if (!img_surf) {
         SDL_Log("Couldn't load image: %s", SDL_GetError());
         return SDL_APP_FAILURE;
     }
-    texture = SDL_CreateTextureFromSurface(renderer, img_surf);
     tray = SDL_CreateTray(img_surf, "Example");
     SDL_DestroySurface(img_surf);
 
@@ -123,17 +124,33 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     SDL_SetTrayEntryCallback((SDL_TrayEntry*)sub_items[0], submenu_callback, NULL);
     SDL_SetTrayEntryCallback((SDL_TrayEntry*)items[2], hide_show_callback, NULL);
 
+    // Titlebar
+    titlebar = new Titlebar(renderer, window, "Example", titlebar_height, titlebar_color, font);
+
     return SDL_APP_CONTINUE;
 }
 
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 {
-    ImGui_ImplSDL3_ProcessEvent(event);
+    static int res;
+    if(show_subwindows) ImGui_ImplSDL3_ProcessEvent(event);
     if (event->type == SDL_EVENT_QUIT) {
         return SDL_APP_SUCCESS;
     }
     else if(event->type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) {
         hide_show();
+    }
+    else if(titlebar->events(event)) {
+        res = titlebar->event_type();
+        if(res == 1) {
+            return SDL_APP_SUCCESS;
+        }
+        else if(res == 2) {
+            SDL_MinimizeWindow(window);
+        }
+        else if(res == 3) {
+            show_subwindows = !show_subwindows;
+        }
     }
     return SDL_APP_CONTINUE;
 }
@@ -157,16 +174,16 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     ImGui::Render();
     SDL_SetRenderDrawColorFloat(renderer, clear_color.x, clear_color.y, clear_color.z, clear_color.w);
     SDL_RenderClear(renderer);
-    SDL_RenderTexture(renderer, texture, NULL, &dstrect);
     SDL_RenderTexture(renderer, text_texture, NULL, &text_rect);
-    ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
+    titlebar->draw();
+    if(show_subwindows) ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
     SDL_RenderPresent(renderer);
     return SDL_APP_CONTINUE;
 }
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
-    SDL_DestroyTexture(texture);
+    delete titlebar;
     SDL_DestroyTray(tray);
     SDL_DestroyTexture(text_texture);
     TTF_CloseFont(font);
