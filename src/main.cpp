@@ -173,7 +173,6 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result)
     SDL_DestroyTexture(texture);
     SDL_DestroyTray(tray);
     SDL_DestroyTexture(text_texture);
-    TTF_DestroyText(text);
     TTF_CloseFont(font);
     TTF_Quit();
     ImGui_ImplSDLRenderer3_Shutdown();
