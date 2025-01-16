@@ -50,7 +50,6 @@ void SDLCALL hide_show_callback(void *userdata, SDL_TrayEntry *entry) {
 }
 
 
-/* This function runs once at startup. */
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
     SDL_SetAppMetadata("Example HUMAN READABLE NAME", "1.0", "com.example.CATEGORY-NAME");
@@ -124,23 +123,21 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     SDL_SetTrayEntryCallback((SDL_TrayEntry*)sub_items[0], submenu_callback, NULL);
     SDL_SetTrayEntryCallback((SDL_TrayEntry*)items[2], hide_show_callback, NULL);
 
-    return SDL_APP_CONTINUE;  /* carry on with the program! */
+    return SDL_APP_CONTINUE;
 }
 
-/* This function runs when a new event (mouse input, keypresses, etc) occurs. */
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 {
     ImGui_ImplSDL3_ProcessEvent(event);
     if (event->type == SDL_EVENT_QUIT) {
-        return SDL_APP_SUCCESS;  /* end the program, reporting success to the OS. */
+        return SDL_APP_SUCCESS;
     }
     else if(event->type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) {
         hide_show();
     }
-    return SDL_APP_CONTINUE;  /* carry on with the program! */
+    return SDL_APP_CONTINUE;
 }
 
-/* This function runs once per frame, and is the heart of the program. */
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
     ImGui_ImplSDLRenderer3_NewFrame();
@@ -164,10 +161,9 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     SDL_RenderTexture(renderer, text_texture, NULL, &text_rect);
     ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
     SDL_RenderPresent(renderer);
-    return SDL_APP_CONTINUE;  /* carry on with the program! */
+    return SDL_APP_CONTINUE;
 }
 
-/* This function runs once at shutdown. */
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
     SDL_DestroyTexture(texture);

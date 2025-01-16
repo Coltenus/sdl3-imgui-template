@@ -22,7 +22,6 @@ function (download_and_extract version filename link dest folder)
         )
 
         if(WIN32)
-        # Використання PowerShell для розпакування на Windows
         execute_process(
                 COMMAND powershell -Command "Expand-Archive -Path ${CMAKE_CURRENT_BINARY_DIR}/${filename}.zip -DestinationPath ${dest} -Force"
                 OUTPUT_QUIET
@@ -32,7 +31,6 @@ function (download_and_extract version filename link dest folder)
                 OUTPUT_QUIET
         )
         else()
-        # Використання unzip на Linux/MacOS
         execute_process(
                 COMMAND unzip -o ${CMAKE_CURRENT_BINARY_DIR}/${filename}.zip -d ${dest}
                 OUTPUT_QUIET
