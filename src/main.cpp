@@ -31,6 +31,7 @@ static SDL_FRect text_rect = {400, titlebar_height + 50, (float)strlen(text) * t
 static Titlebar* titlebar = NULL;
 static const SDL_Color titlebar_color = {60, 60, 120, 255};
 static bool show_subwindows = true;
+static bool exit_on_close = false;
 
 void SDLCALL quit_callback(void *userdata, SDL_TrayEntry *entry) {
     SDL_Event event;
@@ -138,12 +139,14 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
         return SDL_APP_SUCCESS;
     }
     else if(event->type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) {
+        if(exit_on_close) return SDL_APP_SUCCESS;
         hide_show();
     }
     else if(titlebar->events(event)) {
         res = titlebar->event_type();
         if(res == 1) {
-            return SDL_APP_SUCCESS;
+            if(exit_on_close) return SDL_APP_SUCCESS;
+            hide_show();
         }
         else if(res == 2) {
             SDL_MinimizeWindow(window);
@@ -162,12 +165,13 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     ImGui::NewFrame();
 
     {
-        ImGui::Begin("Hello, world!");
+        ImGui::Begin("Hello, world!", NULL, ImGuiWindowFlags_AlwaysAutoResize);
         ImGui::Text("This is some useful text.");
         ImGui::ColorEdit3("clear color", (float*)&clear_color);
         if (ImGui::Button("Button")) {
             SDL_Log("Button pressed.");
         }
+        ImGui::Checkbox("Exit on close", &exit_on_close);
         ImGui::End();
     }
 
