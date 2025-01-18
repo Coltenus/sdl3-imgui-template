@@ -73,7 +73,6 @@ if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/SDL3_ttf)
 endif()
 
 set(LIBS SDL3::SDL3 SDL3_image::SDL3_image SDL3_ttf::SDL3_ttf)
-cmake_policy(SET CMP0169 OLD)
 
 set(CMAKE_FIND_USE_CMAKE_PATH TRUE)
 set(CMAKE_PREFIX_PATH ${CMAKE_CURRENT_BINARY_DIR}/SDL3/${arch} ${CMAKE_CURRENT_BINARY_DIR}/SDL3_image/${arch} ${CMAKE_CURRENT_BINARY_DIR}/SDL3_ttf/${arch})
@@ -119,6 +118,9 @@ PRIVATE
     src/button.cpp
     src/common.cpp
     src/titlebar.cpp
+    src/shell.cpp
+    src/logger.cpp
+    src/terminal.cpp
 )
 
 target_include_directories(app PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/SDL3/${arch}/include)
@@ -127,6 +129,5 @@ target_include_directories(app PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/SDL3_ttf/${ar
 target_link_libraries(app PRIVATE ${LIBS})
 target_compile_features(app PRIVATE cxx_std_23)
 target_compile_definitions(app PRIVATE SDL_MAIN_USE_CALLBACKS)
-target_link_options(app PRIVATE -static)
 
 file(COPY assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

@@ -14,6 +14,8 @@
 #include <SDL3_ttf/SDL_ttf.h>
 #include "titlebar.h"
 #include "common.h"
+#include "logger.h"
+#include "terminal.h"
 
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
@@ -31,7 +33,9 @@ static SDL_FRect text_rect = {400, titlebar_height + 50, (float)strlen(text) * t
 static Titlebar* titlebar = NULL;
 static const SDL_Color titlebar_color = {60, 60, 120, 255};
 static bool show_subwindows = true;
-static bool exit_on_close = false;
+static bool exit_on_close = true;
+static Logger *logger = NULL;
+static Terminal *terminal = NULL;
 
 void SDLCALL quit_callback(void *userdata, SDL_TrayEntry *entry) {
     SDL_Event event;
@@ -60,6 +64,16 @@ void SDLCALL hide_show_callback(void *userdata, SDL_TrayEntry *entry) {
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
+    logger = new Logger("Log");
+    logger->log("Hello, world!");
+    logger->log("Hey, you!");
+    logger->log("This is\n a test.");
+
+    terminal = new Terminal("Terminal");
+    terminal->execute("ls");
+    terminal->execute("pwd");
+    terminal->execute("echo Hello, world!");
+
     SDL_SetAppMetadata("Example HUMAN READABLE NAME", "1.0", "com.example.CATEGORY-NAME");
 
     if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -134,7 +148,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 {
     static int res;
-    if(show_subwindows) ImGui_ImplSDL3_ProcessEvent(event);
+    ImGui_ImplSDL3_ProcessEvent(event);
     if (event->type == SDL_EVENT_QUIT) {
         return SDL_APP_SUCCESS;
     }
@@ -164,15 +178,23 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
 
-    {
-        ImGui::Begin("Hello, world!", NULL, ImGuiWindowFlags_AlwaysAutoResize);
-        ImGui::Text("This is some useful text.");
-        ImGui::ColorEdit3("clear color", (float*)&clear_color);
-        if (ImGui::Button("Button")) {
-            SDL_Log("Button pressed.");
+    if(show_subwindows) {
+        {
+            ImGui::Begin("Hello, world!", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+            ImGui::Text("This is some useful text.");
+            ImGui::ColorEdit3("clear color", (float*)&clear_color);
+            if (ImGui::Button("Button")) {
+                SDL_Log("Button pressed.");
+            }
+            ImGui::Checkbox("Exit on close", &exit_on_close);
+            if(ImGui::Button("Add log")) {
+                logger->log("This is a log message.");
+            }
+            ImGui::End();
         }
-        ImGui::Checkbox("Exit on close", &exit_on_close);
-        ImGui::End();
+
+        logger->draw();
+        terminal->draw();
     }
 
     ImGui::Render();
@@ -180,13 +202,15 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     SDL_RenderClear(renderer);
     SDL_RenderTexture(renderer, text_texture, NULL, &text_rect);
     titlebar->draw();
-    if(show_subwindows) ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
+    ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
     SDL_RenderPresent(renderer);
     return SDL_APP_CONTINUE;
 }
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
+    delete terminal;
+    delete logger;
     delete titlebar;
     SDL_DestroyTray(tray);
     SDL_DestroyTexture(text_texture);
