@@ -1,26 +1,25 @@
 #ifndef TERMINAL_H
 #define TERMINAL_H
 
-#include "imgui.h"
+#include "logger.h"
 #include "shell.h"
 
-class Terminal {
+class Terminal : public Logger {
 private:
-    ImGuiTextBuffer Buf;
-    ImVector<int> LineOffsets;
-    int scroll;
-    std::string name, path;
+    std::string path;
     char input[256];
     PersistentShell shell;
     int focus;
+    std::string buffer;
+    void add(const std::string& message) override;
 
 public:
     Terminal(std::string name);
     ~Terminal();
     void execute(std::string command);
-    void clear();
+    void clear() override;
     void reset();
-    void draw();
+    void draw() override;
 };
 
 #endif

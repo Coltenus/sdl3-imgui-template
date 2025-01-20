@@ -5,7 +5,7 @@
 #include <imgui.h>
 
 class Logger {
-private:
+protected:
     ImGuiTextBuffer Buf;
     ImVector<int> LineOffsets;
     int scroll;
@@ -13,10 +13,10 @@ private:
 
 public:
     Logger(std::string name);
-    ~Logger();
-    void log(const std::string& message);
-    void clear();
-    void draw();
+    virtual ~Logger();
+    virtual void add(const std::string& message);
+    virtual void clear();
+    virtual void draw();
 };
 
 #endif

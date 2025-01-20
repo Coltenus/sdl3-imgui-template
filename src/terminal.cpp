@@ -1,8 +1,6 @@
 #include "terminal.h"
 
-Terminal::Terminal(std::string name) {
-    scroll = 0;
-    this->name = name;
+Terminal::Terminal(std::string name) : Logger(name) {
     memset(input, 0, sizeof(input));
     this->focus = 1;
 }
@@ -12,17 +10,9 @@ Terminal::~Terminal() {
 
 void Terminal::execute(std::string command) {
     std::string result = shell.execute(command);
-    for(int i = 0; i < result.size(); i++) {
-        if(result[i] == '\n') {
-            LineOffsets.push_back(Buf.size() - result.size() + i);
-        }
-    }
-    Buf.appendf("%s> %s\n", shell.get_path().c_str(), command.c_str());
-    LineOffsets.push_back(Buf.size());
-    Buf.append(result.c_str());
-    Buf.append("\n");
-    LineOffsets.push_back(Buf.size());
-    scroll = 2;
+    buffer = command;
+    add(result);
+    buffer.clear();
     focus = 1;
 }
 
@@ -31,6 +21,7 @@ void Terminal::clear() {
     LineOffsets.clear();
     scroll = 0;
     focus = 1;
+    buffer = "";
 }
 
 void Terminal::reset() {
@@ -76,4 +67,21 @@ void Terminal::draw() {
     ImGui::PopStyleVar();
     ImGui::EndChild();
     ImGui::End();
+}
+
+void Terminal::add(const std::string &message) {
+    if(message.size() == 0) {
+        return;
+    }
+    for(int i = 0; i < message.size(); i++) {
+        if(message[i] == '\n') {
+            LineOffsets.push_back(Buf.size() - message.size() + i);
+        }
+    }
+    Buf.appendf("%s> %s\n", shell.get_path().c_str(), buffer.c_str());
+    LineOffsets.push_back(Buf.size());
+    Buf.append(message.c_str());
+    Buf.append("\n");
+    LineOffsets.push_back(Buf.size());
+    scroll = 2;
 }

@@ -8,7 +8,7 @@ Logger::Logger(std::string name) {
 Logger::~Logger() {
 }
 
-void Logger::log(const std::string& message) {
+void Logger::add(const std::string& message) {
     for(int i = 0; i < message.size(); i++) {
         if(message[i] == '\n') {
             LineOffsets.push_back(Buf.size() - message.size() + i);

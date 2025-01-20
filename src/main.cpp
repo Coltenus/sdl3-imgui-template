@@ -65,9 +65,9 @@ void SDLCALL hide_show_callback(void *userdata, SDL_TrayEntry *entry) {
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
     logger = new Logger("Log");
-    logger->log("Hello, world!");
-    logger->log("Hey, you!");
-    logger->log("This is\n a test.");
+    logger->add("Hello, world!");
+    logger->add("Hey, you!");
+    logger->add("This is\n a test.");
 
     terminal = new Terminal("Terminal");
     terminal->execute("ls");
@@ -188,7 +188,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
             }
             ImGui::Checkbox("Exit on close", &exit_on_close);
             if(ImGui::Button("Add log")) {
-                logger->log("This is a log message.");
+                logger->add("This is a log message.");
             }
             ImGui::End();
         }
