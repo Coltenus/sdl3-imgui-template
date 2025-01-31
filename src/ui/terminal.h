@@ -2,13 +2,15 @@
 #define TERMINAL_H
 
 #include "logger.h"
-#include "shell.h"
+#include "../utils/shell.h"
+
+namespace ui {
 
 class Terminal : public Logger {
 private:
     std::string path;
     char input[256];
-    PersistentShell shell;
+    utils::PersistentShell shell;
     int focus;
     std::string buffer;
     void add(const std::string& message) override;
@@ -20,6 +22,8 @@ public:
     void clear() override;
     void reset();
     void draw() override;
+};
+
 };
 
 #endif

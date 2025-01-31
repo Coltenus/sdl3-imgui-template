@@ -9,7 +9,8 @@
                 "${workspaceFolder}/build/SDL3_image/x86_64-w64-mingw32/include",
                 "${workspaceFolder}/build/SDL3_ttf/x86_64-w64-mingw32/include",
                 "${workspaceFolder}/build/_deps/imgui-src",
-                "${workspaceFolder}/src"
+                "${workspaceFolder}/src",
+                "C:/msys64/mingw64/include/freetype2"
             ],
             "defines": [
                 "_DEBUG",

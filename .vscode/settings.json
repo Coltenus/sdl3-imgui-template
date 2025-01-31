@@ -88,7 +88,10 @@
         "set": "cpp",
         "unordered_set": "cpp",
         "numeric": "cpp",
-        "numbers": "cpp"
+        "numbers": "cpp",
+        "fstream": "cpp",
+        "*.inc": "cpp",
+        "*.ipp": "cpp"
     },
     "terminal.integrated.defaultProfile.windows": "MSYS2",
     "terminal.integrated.env.windows": {

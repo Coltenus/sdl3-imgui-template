@@ -1,5 +1,7 @@
 #include "terminal.h"
 
+namespace ui {
+
 Terminal::Terminal(std::string name) : Logger(name) {
     memset(input, 0, sizeof(input));
     this->focus = 1;
@@ -85,3 +87,5 @@ void Terminal::add(const std::string &message) {
     LineOffsets.push_back(Buf.size());
     scroll = 2;
 }
+
+};

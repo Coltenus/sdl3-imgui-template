@@ -1,5 +1,7 @@
 #include "shell.h"
 
+namespace utils {
+
 PersistentShell::PersistentShell() {
 #ifdef _WIN32
     separator = "> ";
@@ -45,7 +47,7 @@ void PersistentShell::init() {
     siStartInfo.hStdInput = hChildStdinRead;
     siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
 
-    if (!CreateProcess(nullptr, (LPSTR)"powershell.exe", nullptr, nullptr, TRUE, 0, nullptr, nullptr, &siStartInfo, &procInfo)) {
+    if (!CreateProcess(nullptr, (LPSTR)"powershell.exe", nullptr, nullptr, TRUE, CREATE_NO_WINDOW, nullptr, nullptr, &siStartInfo, &procInfo)) {
         throw std::runtime_error("Failed to start powershell.exe");
     }
 
@@ -167,3 +169,5 @@ void PersistentShell::reset() {
     init();
 #endif
 }
+
+};

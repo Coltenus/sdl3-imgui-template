@@ -12,6 +12,8 @@
 #include <sys/wait.h>
 #endif
 
+namespace utils {
+
 class PersistentShell {
 private:
 #ifdef _WIN32
@@ -32,5 +34,6 @@ public:
     void reset();
 };
 
+};
 
 #endif

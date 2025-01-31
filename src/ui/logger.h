@@ -4,6 +4,8 @@
 #include <string>
 #include <imgui.h>
 
+namespace ui {
+
 class Logger {
 protected:
     ImGuiTextBuffer Buf;
@@ -17,6 +19,8 @@ public:
     virtual void add(const std::string& message);
     virtual void clear();
     virtual void draw();
+};
+
 };
 
 #endif
