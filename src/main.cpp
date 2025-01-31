@@ -176,7 +176,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
     logger = new ui::Logger("Log");
     logger->add("Hello, world!");
-    logger->add("Hey, you!");
+    logger->add("Hey!");
     logger->add("This is\n a test.");
 
     terminal = new ui::Terminal("Terminal");
