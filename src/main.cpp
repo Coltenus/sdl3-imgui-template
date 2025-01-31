@@ -22,6 +22,8 @@
 #include "utils/text_renderer.h"
 #include "utils/texture.h"
 
+#include "imgui_internal.h"
+
 static SDL_Window *window = NULL;
 static SDL_GLContext gl_context = NULL;
 static std::string ini_path;
@@ -39,7 +41,7 @@ static ui::Logger *logger = NULL;
 static ui::Terminal *terminal = NULL;
 static utils::TextRenderer *text_renderer = NULL;
 static utils::Texture *texture[2] = {NULL, NULL};
-bool texture_chooice = false;
+bool texture_choice = false;
 
 void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,GLenum severity, GLsizei length,const GLchar* msg, const void* data) {
 	printf("%d: %s\n",id, msg);
@@ -67,6 +69,28 @@ void hide_show() {
 
 void SDLCALL hide_show_callback(void *userdata, SDL_TrayEntry *entry) {
     hide_show();
+}
+
+static void* UserData_ReadOpen(ImGuiContext*, ImGuiSettingsHandler*, const char* name)
+{
+    if(strcmp(name, "Settings") == 0) {
+        return (void*)name;
+    }
+    return NULL;
+}
+
+static void UserData_ReadLine(ImGuiContext*, ImGuiSettingsHandler*, void* entry, const char* line)
+{
+    int c;
+    if (sscanf(line, "Choice=%d", &c) == 1)
+        texture_choice = (c != 0);
+}
+
+static void UserData_WriteAll(ImGuiContext* ctx, ImGuiSettingsHandler* handler, ImGuiTextBuffer* buf)
+{ 
+    buf->appendf("[%s][%s]\n", "UserData", "Settings");
+    buf->appendf("Choice=%d\n", texture_choice);
+    buf->append("\n");
 }
 
 SDL_AppResult window_init() {
@@ -121,6 +145,14 @@ SDL_AppResult window_init() {
     
     ini_path = SDL_GetBasePath() + std::string("app.ini");
     io.IniFilename = ini_path.c_str();
+
+    ImGuiSettingsHandler ini_handler;
+    ini_handler.TypeName = "UserData";
+    ini_handler.TypeHash = ImHashStr("UserData");
+    ini_handler.ReadOpenFn = UserData_ReadOpen;
+    ini_handler.ReadLineFn = UserData_ReadLine;
+    ini_handler.WriteAllFn = UserData_WriteAll;
+    ImGui::AddSettingsHandler(&ini_handler);
 
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
@@ -245,7 +277,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
             if(ImGui::Button("Add log")) {
                 logger->add("This is a log message.");
             }
-            ImGui::Checkbox("Texture", &texture_chooice);
+            ImGui::Checkbox("Texture", &texture_choice);
             ImGui::End();
         }
 
@@ -258,7 +290,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     text_renderer->draw();
-    if(texture_chooice) texture[1]->draw();
+    if(texture_choice) texture[1]->draw();
     else texture[0]->draw();
     titlebar->draw();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
