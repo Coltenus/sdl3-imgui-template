@@ -191,7 +191,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     text_renderer = new utils::TextRenderer(24, glm::vec4(0.0f, 0.2f, 0.4f, 0.8f), glm::vec2(window_size.x, window_size.y));
     text_renderer->add_text("Hello, world!", glm::vec2(10, titlebar_height), 1.0f);
-    text_renderer->add_text("Hey, you!", glm::vec2(10, 40 + titlebar_height), 2.0f);
+    text_renderer->add_text("Hey!", glm::vec2(10, 40 + titlebar_height), 2.0f);
     text_renderer->add_text("This is a test.", glm::vec2(10, 100 + titlebar_height), 0.5f);
 
     texture[0] = new utils::Texture("assets/close.png", glm::vec2(600, 40 + titlebar_height), glm::vec2(32, 32), glm::vec2(window_size.x, window_size.y));
