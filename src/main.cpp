@@ -340,7 +340,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
     ImGui::Render();
 
-    {
+    if(show_subwindows) {
         scene->bind();
         if(texture_choice) texture[3]->draw();
         else texture[2]->draw();
