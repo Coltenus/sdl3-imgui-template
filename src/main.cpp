@@ -294,6 +294,11 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
+    if(hidden) {
+        SDL_Delay(1000 / 60);
+        return SDL_APP_CONTINUE;
+    }
+
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
