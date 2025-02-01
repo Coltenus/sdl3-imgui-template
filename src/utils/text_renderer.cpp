@@ -33,6 +33,7 @@ TextRenderer::~TextRenderer() {
 }
 
 void TextRenderer::draw() {
+    glDisable(GL_DEPTH_TEST);
     // Use the shader
     shader->use();
     shader->set_vec4("textColor", color);
@@ -51,6 +52,7 @@ void TextRenderer::draw() {
 
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
+    glEnable(GL_DEPTH_TEST);
 }
 
 bool TextRenderer::load_font(const char* fontPath, int fontSize) {

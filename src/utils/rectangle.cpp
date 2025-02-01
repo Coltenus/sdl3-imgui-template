@@ -31,10 +31,13 @@ Rectangle::~Rectangle() {
 }
 
 void Rectangle::draw() {
+    glDisable(GL_DEPTH_TEST);
     shader->use();
     shader->set_vec4("col", glm::vec4(color, 1.0f));
     glBindVertexArray(vaoID);
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+    glBindVertexArray(0);
+    glEnable(GL_DEPTH_TEST);
 }
 
 void Rectangle::set_color(glm::vec3 color) {

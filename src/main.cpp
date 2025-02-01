@@ -4,6 +4,7 @@
 #include "imgui.h"
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_opengl3.h"
+#include "imgui_internal.h"
 #include <GL/glew.h>
 #include <GL/gl.h>
 #if defined(IMGUI_IMPL_OPENGL_ES2)
@@ -21,15 +22,22 @@
 #include "utils/shader.h"
 #include "utils/text_renderer.h"
 #include "utils/texture.h"
+#include "ui/cube.h"
 
-#include "imgui_internal.h"
+#ifdef WIN32
+#include <windows.h>
+extern "C"
+{
+    __declspec(dllexport) DWORD NvOptimusEnablement = 0x00000000;
+}
+#endif //def WIN32
 
 static SDL_Window *window = NULL;
 static SDL_GLContext gl_context = NULL;
 static std::string ini_path;
 static const int titlebar_height = 32;
 static const glm::vec4 titlebar_color = {0.25f, 0.25f, 0.5f, 1.0f};
-static const SDL_Point window_size = {800, titlebar_height + 600};
+static const glm::vec2 window_size = {800, titlebar_height + 600};
 static ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 static SDL_Tray *tray = NULL;
 static SDL_TrayMenu *menu = NULL;
@@ -41,7 +49,8 @@ static ui::Logger *logger = NULL;
 static ui::Terminal *terminal = NULL;
 static utils::TextRenderer *text_renderer = NULL;
 static utils::Texture *texture[2] = {NULL, NULL};
-bool texture_choice = false;
+static bool texture_choice = false;
+static ui::Cube* cube = NULL;
 
 void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,GLenum severity, GLsizei length,const GLchar* msg, const void* data) {
 	printf("%d: %s\n",id, msg);
@@ -84,19 +93,35 @@ static void UserData_ReadLine(ImGuiContext*, ImGuiSettingsHandler*, void* entry,
     int c;
     if (sscanf(line, "Choice=%d", &c) == 1)
         texture_choice = (c != 0);
+    else if(sscanf(line, "Color=%f,%f,%f,%f", &clear_color.x, &clear_color.y, &clear_color.z, &clear_color.w) == 4)
+        clear_color = ImVec4(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
 }
 
 static void UserData_WriteAll(ImGuiContext* ctx, ImGuiSettingsHandler* handler, ImGuiTextBuffer* buf)
 { 
     buf->appendf("[%s][%s]\n", "UserData", "Settings");
     buf->appendf("Choice=%d\n", texture_choice);
+    buf->appendf("Color=%f,%f,%f,%f\n", clear_color.x, clear_color.y, clear_color.z, clear_color.w);
     buf->append("\n");
 }
 
-SDL_AppResult window_init() {
+SDL_AppResult window_init(int argc, char *argv[]) {
     const char* title = "SDL3 ImGui OpenGL Template";
     const char* app_id = "com.template.sdl3-imgui-opengl";
     SDL_SetAppMetadata(title, "1.0", app_id);
+
+    for(int i = 1; i<argc; i++) {
+        if(strncmp(argv[i], "-nvidia", 7) == 0) {
+            #ifdef WIN32
+            NvOptimusEnablement = 0x00000001;
+            #endif
+        }
+        else if(strncmp(argv[i], "-intel", 6) == 0) {
+            #ifdef WIN32
+            NvOptimusEnablement = 0x00000000;
+            #endif
+        }
+    }
 
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
@@ -162,6 +187,12 @@ SDL_AppResult window_init() {
     ImGui_ImplSDL3_InitForOpenGL(window, gl_context);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
+    glDepthFunc( GL_LESS );
+    glEnable(GL_DEPTH_TEST);
+
     auto img_surf = IMG_Load("assets/close.png");
     if (!img_surf) {
         SDL_Log("Couldn't load image: %s", SDL_GetError());
@@ -199,10 +230,10 @@ SDL_AppResult window_init() {
     titlebar = new ui::Titlebar(title, titlebar_height, titlebar_color, glm::vec2(window_size.x, window_size.y));
 
 	glDebugMessageCallback(GLDebugMessageCallback, NULL);
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     return SDL_APP_SUCCESS;
 }
-
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
@@ -216,7 +247,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     terminal->execute("pwd");
     terminal->execute("echo Hello, world!");
 
-    auto result = window_init();
+    auto result = window_init(argc, argv);
     if(result != SDL_APP_SUCCESS) {
         return result;
     }
@@ -228,6 +259,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     texture[0] = new utils::Texture("assets/close.png", glm::vec2(600, 40 + titlebar_height), glm::vec2(32, 32), glm::vec2(window_size.x, window_size.y));
     texture[1] = new utils::Texture("assets/min.png", glm::vec2(600, 40 + titlebar_height), glm::vec2(32, 32), glm::vec2(window_size.x, window_size.y));
+
+    cube = new ui::Cube(window_size);
 
     return SDL_APP_CONTINUE;
 }
@@ -292,6 +325,8 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     text_renderer->draw();
     if(texture_choice) texture[1]->draw();
     else texture[0]->draw();
+    float time = SDL_GetTicks() / 1000.0f;
+    cube->draw(time);
     titlebar->draw();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     SDL_GL_SwapWindow(window);
@@ -301,6 +336,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
+    delete cube;
     delete texture[0];
     delete texture[1];
     delete text_renderer;

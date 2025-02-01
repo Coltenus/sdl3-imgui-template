@@ -137,6 +137,7 @@ PRIVATE
     src/utils/text_renderer.cpp
     src/utils/rectangle.cpp
     src/utils/texture.cpp
+    src/ui/cube.cpp
 )
 
 target_include_directories(app PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/SDL3/${arch}/include)
