@@ -23,6 +23,7 @@
 #include "utils/text_renderer.h"
 #include "utils/texture.h"
 #include "ui/cube.h"
+#include "ui/scene.h"
 
 #ifdef WIN32
 #include <windows.h>
@@ -48,9 +49,10 @@ static bool exit_on_close = true;
 static ui::Logger *logger = NULL;
 static ui::Terminal *terminal = NULL;
 static utils::TextRenderer *text_renderer = NULL;
-static utils::Texture *texture[2] = {NULL, NULL};
+static utils::Texture *texture[4] = {NULL, NULL, NULL, NULL};
 static bool texture_choice = false;
 static ui::Cube* cube = NULL;
+static ui::Scene* scene = NULL;
 
 void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,GLenum severity, GLsizei length,const GLchar* msg, const void* data) {
 	printf("%d: %s\n",id, msg);
@@ -91,17 +93,24 @@ static void* UserData_ReadOpen(ImGuiContext*, ImGuiSettingsHandler*, const char*
 static void UserData_ReadLine(ImGuiContext*, ImGuiSettingsHandler*, void* entry, const char* line)
 {
     int c;
-    if (sscanf(line, "Choice=%d", &c) == 1)
+    ImVec4 buf_vec4;
+    if(sscanf(line, "ExitOnClose=%d", &c) == 1)
+        exit_on_close = (c != 0);
+    else if (sscanf(line, "Choice=%d", &c) == 1)
         texture_choice = (c != 0);
     else if(sscanf(line, "Color=%f,%f,%f,%f", &clear_color.x, &clear_color.y, &clear_color.z, &clear_color.w) == 4)
         clear_color = ImVec4(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+    else if(sscanf(line, "SceneColor=%f,%f,%f,%f", &buf_vec4.x, &buf_vec4.y, &buf_vec4.z, &buf_vec4.w) == 4)
+        scene->set_clear_color(buf_vec4);
 }
 
 static void UserData_WriteAll(ImGuiContext* ctx, ImGuiSettingsHandler* handler, ImGuiTextBuffer* buf)
 { 
     buf->appendf("[%s][%s]\n", "UserData", "Settings");
+    buf->appendf("ExitOnClose=%d\n", exit_on_close);
     buf->appendf("Choice=%d\n", texture_choice);
     buf->appendf("Color=%f,%f,%f,%f\n", clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+    buf->appendf("SceneColor=%f,%f,%f,%f\n", scene->get_clear_color()[0], scene->get_clear_color()[1], scene->get_clear_color()[2], scene->get_clear_color()[3]);
     buf->append("\n");
 }
 
@@ -259,8 +268,12 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     texture[0] = new utils::Texture("assets/close.png", glm::vec2(600, 40 + titlebar_height), glm::vec2(32, 32), glm::vec2(window_size.x, window_size.y));
     texture[1] = new utils::Texture("assets/min.png", glm::vec2(600, 40 + titlebar_height), glm::vec2(32, 32), glm::vec2(window_size.x, window_size.y));
+    texture[2] = new utils::Texture("assets/close.png", glm::vec2(600, 40 + titlebar_height), glm::vec2(128, 128), glm::vec2(window_size.x, window_size.y));
+    texture[3] = new utils::Texture("assets/min.png", glm::vec2(600, 40 + titlebar_height), glm::vec2(128, 128), glm::vec2(window_size.x, window_size.y));
 
     cube = new ui::Cube(window_size);
+
+    scene = new ui::Scene(true);
 
     return SDL_APP_CONTINUE;
 }
@@ -308,6 +321,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
             ImGui::Begin("Hello, world!", NULL, ImGuiWindowFlags_AlwaysAutoResize);
             ImGui::Text("This is some useful text.");
             ImGui::ColorEdit3("clear color", (float*)&clear_color);
+            ImGui::ColorEdit3("scene clear color", scene->get_clear_color());
             if (ImGui::Button("Button")) {
                 SDL_Log("Button pressed.");
             }
@@ -321,17 +335,26 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
         logger->draw();
         terminal->draw();
+        scene->draw();
     }
 
     ImGui::Render();
+
+    {
+        scene->bind();
+        if(texture_choice) texture[3]->draw();
+        else texture[2]->draw();
+        float time = SDL_GetTicks() / 1000.0f;
+        cube->draw(time);
+        scene->unbind();
+    }
+
     glViewport(0, 0, (int)ImGui::GetIO().DisplaySize.x, (int)ImGui::GetIO().DisplaySize.y);
     glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     text_renderer->draw();
     if(texture_choice) texture[1]->draw();
     else texture[0]->draw();
-    float time = SDL_GetTicks() / 1000.0f;
-    cube->draw(time);
     titlebar->draw();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     SDL_GL_SwapWindow(window);
@@ -341,9 +364,11 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result)
 {
+    delete scene;
     delete cube;
-    delete texture[0];
-    delete texture[1];
+    for(int i = 0; i<4; i++) {
+        delete texture[i];
+    }
     delete text_renderer;
     delete terminal;
     delete logger;
