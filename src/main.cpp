@@ -311,6 +311,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
+    static bool need_scene = false;
     if(hidden) {
         SDL_Delay(1000 / 60);
         return SDL_APP_CONTINUE;
@@ -339,12 +340,12 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
         logger->draw();
         terminal->draw();
-        scene->draw();
+        need_scene = scene->draw();
     }
 
     ImGui::Render();
 
-    if(show_subwindows) {
+    if(show_subwindows && need_scene) {
         scene->bind();
         if(texture_choice) texture[3]->draw();
         else texture[2]->draw();

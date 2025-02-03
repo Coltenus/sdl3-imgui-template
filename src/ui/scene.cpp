@@ -20,14 +20,17 @@ void Scene::unbind() {
     frame_buffer->unbind();
 }
 
-void Scene::draw() {
+bool Scene::draw() {
+    static bool collapsed = false;
     ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
     ImGui::Begin("Scene", NULL, fixed_size ? ImGuiWindowFlags_NoResize : 0);
+    collapsed = ImGui::IsWindowCollapsed();
     const auto sw_size = ImGui::GetContentRegionAvail();
     frame_buffer->rescale(glm::vec2(sw_size.x, sw_size.y));
     glViewport(0, 0, (int)sw_size.x, (int)sw_size.y);
     ImGui::Image((ImTextureID)frame_buffer->get_texture(), sw_size, ImVec2(0, 1), ImVec2(1, 0));
     ImGui::End();
+    return !collapsed;
 }
 
 };

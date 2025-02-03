@@ -24,7 +24,7 @@ public:
 
     void bind();
     void unbind();
-    void draw();
+    bool draw();
     float* get_clear_color() { return (float*)&clear_color; }
     void set_clear_color(ImVec4 color) { clear_color = color; }
 };
