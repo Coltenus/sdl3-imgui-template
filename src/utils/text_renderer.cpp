@@ -1,6 +1,6 @@
-#include "text_renderer.h"
+#include "utils/text_renderer.h"
 #include <iostream>
-#include "text_renderer_shaders.h"
+#include "utils/text_renderer_shaders.h"
 #include <exception>
 #include <glm/gtc/matrix_transform.hpp>
 

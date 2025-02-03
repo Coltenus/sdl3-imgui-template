@@ -10,7 +10,7 @@
 #include <map>
 #include <vector>
 #include <string>
-#include "shader.h"
+#include "utils/shader.h"
 
 namespace utils {
 

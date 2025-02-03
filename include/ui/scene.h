@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 #include <imgui.h>
 
-#include "../utils/frame_buffer.h"
+#include "utils/frame_buffer.h"
 
 
 namespace ui {

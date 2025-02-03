@@ -1,5 +1,5 @@
-#include "titlebar.h"
-#include "../utils/common.h"
+#include "ui/titlebar.h"
+#include "utils/common.h"
 
 namespace ui {
 

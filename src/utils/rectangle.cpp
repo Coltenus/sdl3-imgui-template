@@ -1,7 +1,7 @@
-#include "rectangle.h"
-#include "rectangle_shaders.h"
+#include "utils/rectangle.h"
+#include "utils/rectangle_shaders.h"
 #include <array>
-#include "common.h"
+#include "utils/common.h"
 
 namespace utils {
 

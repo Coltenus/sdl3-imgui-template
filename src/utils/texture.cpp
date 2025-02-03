@@ -1,8 +1,8 @@
-#include "texture.h"
+#include "utils/texture.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#include "texture_shaders.h"
-#include "common.h"
+#include "utils/texture_shaders.h"
+#include "utils/common.h"
 
 namespace utils {
 

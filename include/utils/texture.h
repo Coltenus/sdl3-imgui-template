@@ -3,7 +3,7 @@
 
 #include <GL/glew.h>
 #include <GL/gl.h>
-#include "shader.h"
+#include "utils/shader.h"
 
 namespace utils {
 

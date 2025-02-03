@@ -1,6 +1,6 @@
-#include "cube.h"
+#include "ui/cube.h"
 #include <glm/gtc/matrix_transform.hpp>
-#include "cube_shaders.h"
+#include "ui/cube_shaders.h"
 
 namespace ui {
 

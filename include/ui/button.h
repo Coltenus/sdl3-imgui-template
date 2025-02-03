@@ -2,9 +2,9 @@
 #define BUTTON_H
 
 #include <SDL3/SDL.h>
-#include "../utils/rectangle.h"
-#include "../utils/text_renderer.h"
-#include "../utils/texture.h"
+#include "utils/rectangle.h"
+#include "utils/text_renderer.h"
+#include "utils/texture.h"
 
 namespace ui {
 

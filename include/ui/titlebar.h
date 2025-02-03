@@ -6,8 +6,8 @@
 #include "button.h"
 #include <vector>
 #include <array>
-#include "../utils/text_renderer.h"
-#include "../utils/rectangle.h"
+#include "utils/text_renderer.h"
+#include "utils/rectangle.h"
 
 namespace ui {
 

@@ -1,4 +1,4 @@
-#include "terminal.h"
+#include "ui/terminal.h"
 
 namespace ui {
 

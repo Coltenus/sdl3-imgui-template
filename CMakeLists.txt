@@ -112,6 +112,17 @@ if (stb_ADDED)
     list(APPEND LIBS stb)
 endif ()
 
+CPMAddPackage(
+        NAME tinyobjloader
+        GITHUB_REPOSITORY tinyobjloader/tinyobjloader
+        GIT_TAG 3bb554c
+        GIT_SHALLOW TRUE
+        DOWNLOAD_ONLY
+)
+if (tinyobjloader_ADDED)
+    list(APPEND LIBS tinyobjloader)
+endif ()
+
 find_package(Freetype REQUIRED)
 list(APPEND LIBS Freetype::Freetype)
 find_package(glm REQUIRED)
@@ -123,6 +134,7 @@ if(WIN32 AND WITHOUT_CONSOLE)
         set_property(TARGET app PROPERTY WIN32_EXECUTABLE TRUE)
 endif()
 
+target_include_directories(app PRIVATE include)
 
 target_sources(app
 PRIVATE

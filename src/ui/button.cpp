@@ -1,6 +1,6 @@
-#include "button.h"
-#include "../utils/common.h"
-#include "titlebar.h"
+#include "ui/button.h"
+#include "utils/common.h"
+#include "ui/titlebar.h"
 
 namespace ui {
 

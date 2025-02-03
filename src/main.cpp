@@ -14,6 +14,8 @@
 #endif
 #include <SDL3/SDL_tray.h>
 #include <SDL3_image/SDL_image.h>
+#include <glm/gtc/matrix_transform.hpp>
+#include <tiny_obj_loader.h>
 
 #include "ui/titlebar.h"
 #include "utils/common.h"
@@ -163,7 +165,9 @@ SDL_AppResult window_init(int argc, char *argv[]) {
     }
 
     SDL_GL_MakeCurrent(window, gl_context);
-    SDL_GL_SetSwapInterval(1);
+    if(!SDL_GL_SetSwapInterval(-1)) {
+        SDL_GL_SetSwapInterval(1);
+    }
 
     if(glewInit() != GLEW_OK) {
         SDL_Log("Couldn't initialize GLEW: %s", SDL_GetError());

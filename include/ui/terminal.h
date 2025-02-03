@@ -1,8 +1,8 @@
 #ifndef TERMINAL_H
 #define TERMINAL_H
 
-#include "logger.h"
-#include "../utils/shell.h"
+#include "ui/logger.h"
+#include "utils/shell.h"
 
 namespace ui {
 
