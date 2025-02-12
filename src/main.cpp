@@ -180,6 +180,8 @@ SDL_AppResult window_init(int argc, char *argv[]) {
     (void) io;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
     
     ini_path = SDL_GetBasePath() + std::string("app.ini");
     io.IniFilename = ini_path.c_str();
@@ -285,15 +287,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 {
     static int res;
-    ImGui_ImplSDL3_ProcessEvent(event);
-    if (event->type == SDL_EVENT_QUIT) {
-        return SDL_APP_SUCCESS;
-    }
-    else if(event->type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) {
-        if(exit_on_close) return SDL_APP_SUCCESS;
-        hide_show();
-    }
-    else if(titlebar->events(event)) {
+    if(titlebar->events(event)) {
         res = titlebar->event_type();
         if(res == 1) {
             if(exit_on_close) return SDL_APP_SUCCESS;
@@ -305,6 +299,15 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
         else if(res == 3) {
             show_subwindows = !show_subwindows;
         }
+        if(res != 0) return SDL_APP_CONTINUE;
+    }
+    ImGui_ImplSDL3_ProcessEvent(event);
+    if (event->type == SDL_EVENT_QUIT) {
+        return SDL_APP_SUCCESS;
+    }
+    else if(event->type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) {
+        if(exit_on_close) return SDL_APP_SUCCESS;
+        hide_show();
     }
     return SDL_APP_CONTINUE;
 }
@@ -362,6 +365,14 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     else texture[0]->draw();
     titlebar->draw();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    {
+        SDL_Window* backup_current_window = SDL_GL_GetCurrentWindow();
+        SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault();
+        SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
+    }
     SDL_GL_SwapWindow(window);
     SDL_Delay(1000 / 60);
     return SDL_APP_CONTINUE;
