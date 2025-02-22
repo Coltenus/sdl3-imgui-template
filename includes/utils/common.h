@@ -5,6 +5,8 @@
 #include <SDL3_ttf/SDL_ttf.h>
 #include <random>
 
+namespace utils {
+
 int PointInCircle(SDL_Point point, SDL_Point center, int radius);
 SDL_Texture* CreateTextTexture(SDL_Renderer* ren, TTF_Font* font, const char* text, SDL_Color color);
 SDL_Texture* OpenImageTexture(SDL_Renderer* ren, const char* path);
@@ -32,5 +34,7 @@ T random_value(T min, T max) {
                       "T must be an integral or floating-point type");
     }
 }
+
+};
 
 #endif

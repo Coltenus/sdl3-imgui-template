@@ -4,6 +4,8 @@
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 
+namespace ui {
+
 class Button {
 private:
     SDL_FRect rect_, text_rect;
@@ -21,6 +23,8 @@ public:
     void set_gap(int gap);
 
     SDL_FRect rect() { return rect_; }
+};
+
 };
 
 #endif

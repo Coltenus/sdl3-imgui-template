@@ -1,6 +1,8 @@
-#include "common.h"
+#include "utils/common.h"
 #include <SDL3_image/SDL_image.h>
 #include "imgui.h"
+
+namespace utils {
 
 #define M_PI 3.14159265358979323846
 
@@ -103,4 +105,6 @@ void add_msg(const char* msg, char*** msgs, int* msgs_count) {
     (*msgs)[*msgs_count] = (char*)malloc(sizeof(char) * (strlen(msg) + 1));
     snprintf((*msgs)[*msgs_count], strlen(msg) + 1, "%s", msg);
     (*msgs_count)++;
+};
+
 };

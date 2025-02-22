@@ -1,4 +1,6 @@
-#include "shell.h"
+#include "utils/shell.h"
+
+namespace utils {
 
 PersistentShell::PersistentShell() {
 #ifdef _WIN32
@@ -167,3 +169,5 @@ void PersistentShell::reset() {
     init();
 #endif
 }
+
+};

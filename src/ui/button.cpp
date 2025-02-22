@@ -1,5 +1,7 @@
-#include "button.h"
-#include "common.h"
+#include "ui/button.h"
+#include "utils/common.h"
+
+namespace ui {
 
 Button::Button(SDL_Renderer* ren, SDL_FPoint pos, float height, SDL_Color color, const char* text, TTF_Font* font)
 {
@@ -11,7 +13,7 @@ Button::Button(SDL_Renderer* ren, SDL_FPoint pos, float height, SDL_Color color,
     this->text_rect.y += this->text_rect.h * 5 / 100;
     this->text_rect.w -= this->text_rect.w * 20 / 100;
     this->text_rect.h -= this->text_rect.h * 10 / 100;
-    this->texture = CreateTextTexture(ren, font, text, {0, 0, 0, 255});
+    this->texture = utils::CreateTextTexture(ren, font, text, {0, 0, 0, 255});
 }
 
 Button::Button(SDL_Renderer* ren, SDL_FRect rect, SDL_Texture* texture, SDL_Color color)
@@ -87,3 +89,5 @@ void Button::set_gap(int gap) {
     text_rect.y += text_rect.h * gap / 100;
     text_rect.h -= text_rect.h * gap * 2 / 100;
 }
+
+};

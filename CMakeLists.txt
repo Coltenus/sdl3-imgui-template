@@ -87,7 +87,8 @@ find_package(SDL3_ttf REQUIRED CONFIG NO_DEFAULT_PATH)
 CPMAddPackage(
         NAME imgui
         GITHUB_REPOSITORY ocornut/imgui
-        GIT_TAG 0f33d71
+        GIT_TAG 71d39a4 # docking branch
+        GIT_SHALLOW TRUE
         DOWNLOAD_ONLY
 )
 if (imgui_ADDED)
@@ -112,15 +113,17 @@ endif ()
 
 add_executable(app) # WIN32 - hide the console like this add_executable(app WIN32)
 
+target_include_directories(app PRIVATE includes)
+
 target_sources(app
 PRIVATE
     src/main.cpp
-    src/button.cpp
-    src/common.cpp
-    src/titlebar.cpp
-    src/shell.cpp
-    src/logger.cpp
-    src/terminal.cpp
+    src/ui/button.cpp
+    src/utils/common.cpp
+    src/ui/titlebar.cpp
+    src/utils/shell.cpp
+    src/ui/logger.cpp
+    src/ui/terminal.cpp
 )
 
 target_include_directories(app PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/SDL3/${arch}/include)

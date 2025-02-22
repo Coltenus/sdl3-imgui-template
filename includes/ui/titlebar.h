@@ -3,8 +3,10 @@
 
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
-#include "button.h"
+#include "ui/button.h"
 #include <vector>
+
+namespace ui {
 
 class Titlebar {
 private:
@@ -25,6 +27,8 @@ public:
 
     SDL_FPoint size() { return size_; }
     int event_type() { return event_type_; }
+};
+
 };
 
 #endif

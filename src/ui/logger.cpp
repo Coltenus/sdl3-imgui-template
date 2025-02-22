@@ -1,4 +1,6 @@
-#include "logger.h"
+#include "ui/logger.h"
+
+namespace ui {
 
 Logger::Logger(std::string name) {
     scroll = 0;
@@ -45,3 +47,5 @@ void Logger::draw() {
     ImGui::EndChild();
     ImGui::End();
 }
+
+};
