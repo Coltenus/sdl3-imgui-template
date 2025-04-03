@@ -87,7 +87,7 @@ find_package(SDL3_ttf REQUIRED CONFIG NO_DEFAULT_PATH)
 CPMAddPackage(
         NAME imgui
         GITHUB_REPOSITORY ocornut/imgui
-        GIT_TAG 71d39a4 # docking branch
+        GIT_TAG v1.91.9b-docking
         GIT_SHALLOW TRUE
         DOWNLOAD_ONLY
 )
