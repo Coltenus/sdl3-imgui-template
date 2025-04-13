@@ -10,10 +10,14 @@ Terminal::Terminal(std::string name) : Logger(name) {
 Terminal::~Terminal() {
 }
 
-void Terminal::execute(std::string command) {
-    std::string result = shell.execute(command);
-    buffer = command;
-    add(result);
+void Terminal::execute(const char* fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    std::string buf = fmt_string(fmt, args);
+    va_end(args);
+    std::string result = shell.execute(buf);
+    buffer = buf;
+    add(result.c_str());
     buffer.clear();
     focus = 1;
 }
@@ -71,7 +75,11 @@ void Terminal::draw() {
     ImGui::End();
 }
 
-void Terminal::add(const std::string &message) {
+void Terminal::add(const char* fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    std::string message = fmt_string(fmt, args);
+    va_end(args);
     if(message.size() == 0) {
         return;
     }

@@ -17,6 +17,8 @@
 #include "utils/common.h"
 #include "ui/logger.h"
 #include "ui/terminal.h"
+#include "utils/serial_port.h"
+#include "utils/request.h"
 
 #ifdef WIN32
 #include <windows.h>
@@ -47,6 +49,7 @@ static bool exit_on_close = true;
 static ui::Logger *logger = NULL;
 static ui::Terminal *terminal = NULL;
 static bool texture_choice = false;
+static char serial_buffer[64];
 
 void SDLCALL quit_callback(void *userdata, SDL_TrayEntry *entry) {
     SDL_Event event;
@@ -202,6 +205,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     // Titlebar
     titlebar = new ui::Titlebar(renderer, window, "Example", titlebar_height, titlebar_color, font);
 
+    memset(serial_buffer, 0, sizeof(serial_buffer));
+
     return SDL_APP_CONTINUE;
 }
 
@@ -252,6 +257,37 @@ SDL_AppResult SDL_AppIterate(void *appstate)
                 logger->add("This is a log message.");
             }
             ImGui::Checkbox("Texture", &texture_choice);
+            ImGui::InputText("Serial command", serial_buffer, sizeof(serial_buffer), ImGuiInputTextFlags_CharsNoBlank);
+            if(ImGui::Button("Send")) {
+                utils::SerialPort serial_port;
+                const char* port_name = "COM13";
+                std::string command = serial_buffer;
+                if(serial_port.open(port_name, 115200)) {
+                    logger->add("Opened serial port: %s", port_name);
+                    serial_port.write(command);
+                    std::string response = serial_port.read_delim("\r\n");
+                    serial_port.close();
+                }
+                else {
+                    logger->add("Failed to open serial port.");
+                }
+            }
+            if(ImGui::Button("Send request")) {
+                try {
+                    Request request;
+                    request.setUrl("https://api.jikan.moe/v4/top/anime?sfw");
+                    request.setMethod("GET");
+                    request.setHeader("Content-Type", "application/json");
+                    request.setTimeout(5);
+                    request.setFollowRedirects(true);
+                    request.sendRequest();
+                    auto response = request.getResponseJson();
+                    request.clean();
+                    logger->add("Response: %s", response["data"][0]["title"].get<std::string>().c_str());
+                } catch (const std::exception &e) {
+                    logger->add("Error: %s", e.what());
+                }
+            }
             ImGui::End();
         }
 

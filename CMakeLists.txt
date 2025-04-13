@@ -111,6 +111,9 @@ if (imgui_ADDED)
     list(APPEND LIBS imgui)
 endif ()
 
+find_package(curl REQUIRED CONFIG)
+list(APPEND LIBS curl)
+
 add_executable(app) # WIN32 - hide the console like this add_executable(app WIN32)
 
 target_include_directories(app PRIVATE includes)
@@ -124,6 +127,8 @@ PRIVATE
     src/utils/shell.cpp
     src/ui/logger.cpp
     src/ui/terminal.cpp
+    src/utils/serial_port.cpp
+    src/utils/request.cpp
 )
 
 target_include_directories(app PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/SDL3/${arch}/include)

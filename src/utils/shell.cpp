@@ -106,7 +106,7 @@ std::string PersistentShell::execute(const std::string& command) {
             result.erase(result.find_last_of('\n'), result.size() - result.find_last_of('\n'));
         }
         else {
-            result = "";
+            result = " ";
         }
     }
     catch (std::exception& e) {

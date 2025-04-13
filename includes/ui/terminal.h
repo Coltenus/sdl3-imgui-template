@@ -13,12 +13,12 @@ private:
     utils::PersistentShell shell;
     int focus;
     std::string buffer;
-    void add(const std::string& message) override;
+    void add(const char* fmt, ...) override;
 
 public:
     Terminal(std::string name);
     ~Terminal();
-    void execute(std::string command);
+    void execute(const char* fmt, ...);
     void clear() override;
     void reset();
     void draw() override;

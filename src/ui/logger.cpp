@@ -10,7 +10,7 @@ Logger::Logger(std::string name) {
 Logger::~Logger() {
 }
 
-void Logger::add(const std::string& message) {
+void Logger::add_string(const std::string& message) {
     for(int i = 0; i < message.size(); i++) {
         if(message[i] == '\n') {
             LineOffsets.push_back(Buf.size() - message.size() + i);
@@ -19,6 +19,14 @@ void Logger::add(const std::string& message) {
     Buf.appendf("%s\n", message.c_str());
     LineOffsets.push_back(Buf.size());
     scroll = 2;
+}
+
+void Logger::add(const char* fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    std::string message = fmt_string(fmt, args);
+    va_end(args);
+    add_string(message);
 }
 
 void Logger::clear() {
@@ -46,6 +54,18 @@ void Logger::draw() {
     ImGui::PopStyleVar();
     ImGui::EndChild();
     ImGui::End();
+}
+
+std::string Logger::fmt_string(const char* fmt, va_list args) {
+    va_list args_copy;
+    va_copy(args_copy, args);
+    int size = vsnprintf(nullptr, 0, fmt, args) + 1;
+    va_end(args_copy);
+    char* buffer = new char[size];
+    vsnprintf(buffer, size, fmt, args);
+    std::string message = buffer;
+    delete[] buffer;
+    return message;
 }
 
 };

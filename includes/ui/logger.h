@@ -12,11 +12,13 @@ protected:
     ImVector<int> LineOffsets;
     int scroll;
     std::string name;
+    virtual void add_string(const std::string& message);
+    std::string fmt_string(const char* fmt, va_list args);
 
 public:
     Logger(std::string name);
     virtual ~Logger();
-    virtual void add(const std::string& message);
+    virtual void add(const char* fmt, ...);
     virtual void clear();
     virtual void draw();
 };
